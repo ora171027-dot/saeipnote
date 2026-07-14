@@ -1,0 +1,17 @@
+{
+  "name": "새잎노트",
+  "short_name": "새잎노트",
+  "description": "내 사무실 식물 사진, 물 준 날, 분갈이 날, 상태를 관리하는 앱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f4ee",
+  "theme_color": "#214d38",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

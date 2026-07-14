@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#214d38" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="새잎노트" />
+    <title>새잎노트</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Office plant care</p>
+        <h1>새잎노트</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="secondary-button light" id="exportButton" type="button">백업</button>
+        <label class="import-button">
+          불러오기
+          <input id="importInput" type="file" accept="application/json,.json" />
+        </label>
+        <button class="primary-button" id="addPlantButton" type="button">식물 추가</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="summary" aria-label="식물 관리 요약">
+        <article>
+          <span id="totalPlants">0</span>
+          <p>등록한 식물</p>
+        </article>
+        <article>
+          <span id="needsWater">0</span>
+          <p>물 줄 때 됨</p>
+        </article>
+        <article>
+          <span id="watchPlants">0</span>
+          <p>주의 필요</p>
+        </article>
+      </section>
+
+      <section class="controls" aria-label="식물 찾기와 필터">
+        <label class="search-field">
+          <span>검색</span>
+          <input id="searchInput" type="search" placeholder="이름, 종류, 위치" />
+        </label>
+        <div class="filter-group" role="group" aria-label="상태 필터">
+          <button class="filter-button active" type="button" data-filter="all">전체</button>
+          <button class="filter-button" type="button" data-filter="good">좋음</button>
+          <button class="filter-button" type="button" data-filter="okay">보통</button>
+          <button class="filter-button" type="button" data-filter="watch">주의</button>
+        </div>
+      </section>
+
+      <section class="plant-grid" id="plantGrid" aria-live="polite"></section>
+
+      <section class="empty-state" id="emptyState">
+        <h2>첫 식물을 등록해보세요</h2>
+        <p>사진, 이름, 위치, 물 준 날짜만 넣어도 오늘부터 관리가 훨씬 편해져요.</p>
+        <button class="primary-button" id="emptyAddButton" type="button">첫 식물 추가</button>
+      </section>
+    </main>
+
+    <dialog id="plantDialog">
+      <form method="dialog" class="plant-form" id="plantForm">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">Plant profile</p>
+            <h2 id="dialogTitle">식물 추가</h2>
+          </div>
+          <button class="icon-button" id="closeDialogButton" type="button" aria-label="닫기">x</button>
+        </div>
+
+        <input id="plantId" type="hidden" />
+
+        <label>
+          사진
+          <input id="plantPhoto" type="file" accept="image/*" capture="environment" />
+        </label>
+        <img class="photo-preview" id="photoPreview" alt="" />
+
+        <div class="two-column">
+          <label>
+            이름
+            <input id="plantName" type="text" required placeholder="예: 몬스테라 1호" />
+          </label>
+          <label>
+            종류
+            <input id="plantSpecies" type="text" placeholder="예: 몬스테라" />
+          </label>
+        </div>
+
+        <div class="two-column">
+          <label>
+            위치
+            <input id="plantLocation" type="text" placeholder="예: 창가 선반" />
+          </label>
+          <label>
+            상태
+            <select id="plantStatus">
+              <option value="good">좋음</option>
+              <option value="okay">보통</option>
+              <option value="watch">주의</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="two-column">
+          <label>
+            마지막 물 준 날
+            <input id="wateredAt" type="date" />
+          </label>
+          <label>
+            마지막 분갈이 날
+            <input id="repottedAt" type="date" />
+          </label>
+        </div>
+
+        <label>
+          메모
+          <textarea id="plantMemo" rows="4" placeholder="새잎, 잎끝 마름, 자리 이동 같은 기록"></textarea>
+        </label>
+
+        <div class="dialog-actions">
+          <button class="danger-button" id="deletePlantButton" type="button">삭제</button>
+          <div>
+            <button class="secondary-button" id="cancelDialogButton" type="button">취소</button>
+            <button class="primary-button" id="savePlantButton" type="submit">저장</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
