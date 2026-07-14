@@ -1,4 +1,4 @@
-const CACHE_NAME = "saeipnote-v1";
+const CACHE_NAME = "saeipnote-v2";
 const APP_FILES = [
   "./",
   "./index.html",

@@ -132,7 +132,10 @@ grid.addEventListener("click", (event) => {
 
   if (event.target.matches("[data-action='edit']")) {
     openForm(plant);
+    return;
   }
+
+  openForm(plant);
 });
 
 render();
