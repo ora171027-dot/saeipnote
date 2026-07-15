@@ -220,28 +220,31 @@ textarea {
 
 .plant-grid {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  grid-template-columns: 1fr;
 }
 
 .plant-card {
   box-shadow: 0 8px 24px rgba(43, 54, 47, 0.06);
   cursor: pointer;
   display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  min-height: 132px;
   overflow: hidden;
 }
 
 .plant-photo {
-  aspect-ratio: 4 / 3;
   background: linear-gradient(135deg, var(--mint), #fff7df);
   display: grid;
+  height: 100%;
+  min-height: 132px;
   place-items: center;
   width: 100%;
 }
 
 .plant-photo img {
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -253,8 +256,9 @@ textarea {
 
 .plant-content {
   display: grid;
-  gap: 12px;
-  padding: 14px;
+  gap: 9px;
+  min-width: 0;
+  padding: 12px;
 }
 
 .plant-title {
@@ -303,8 +307,9 @@ textarea {
 }
 
 .plant-dates {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .plant-dates div {
@@ -312,9 +317,10 @@ textarea {
   background: #f7f4ec;
   border-radius: 8px;
   display: flex;
+  gap: 6px;
   justify-content: space-between;
-  min-height: 38px;
-  padding: 8px 10px;
+  min-height: 32px;
+  padding: 6px 8px;
 }
 
 .plant-dates b {
@@ -454,6 +460,45 @@ dialog::backdrop {
 
   .filter-button {
     flex: 1 0 auto;
+  }
+
+  .plant-grid {
+    gap: 10px;
+  }
+
+  .plant-card {
+    grid-template-columns: 96px minmax(0, 1fr);
+    min-height: 118px;
+  }
+
+  .plant-photo {
+    min-height: 118px;
+  }
+
+  .plant-title {
+    align-items: start;
+  }
+
+  .plant-title h2 {
+    font-size: 18px;
+  }
+
+  .plant-dates {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 1fr;
+  }
+
+  .plant-dates div {
+    min-height: 30px;
+  }
+
+  .plant-memo {
+    display: none;
+  }
+
+  .plant-actions {
+    grid-template-columns: 1fr 1fr;
   }
 
   .dialog-actions {
