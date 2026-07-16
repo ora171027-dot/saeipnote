@@ -88,6 +88,7 @@ main {
 }
 
 .summary article,
+.water-board,
 .plant-card,
 .empty-state,
 dialog {
@@ -110,6 +111,113 @@ dialog {
 .summary p {
   color: var(--muted);
   margin: 6px 0 0;
+}
+
+.water-board {
+  margin-bottom: 18px;
+  overflow: hidden;
+  padding: 18px;
+}
+
+.section-heading {
+  align-items: end;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-heading h2 {
+  font-size: 24px;
+  margin-bottom: 0;
+}
+
+.section-heading > p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+  text-align: right;
+}
+
+.water-stats {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.water-stats article {
+  background: #f7f4ec;
+  border-radius: 8px;
+  min-height: 74px;
+  padding: 12px;
+}
+
+.water-stats span {
+  display: block;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.water-stats p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 6px 0 0;
+}
+
+.water-table-wrap {
+  overflow-x: auto;
+}
+
+.water-table {
+  border-collapse: collapse;
+  min-width: 680px;
+  width: 100%;
+}
+
+.water-table th,
+.water-table td {
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  padding: 10px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.water-table th {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.water-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.water-state {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  justify-content: center;
+  min-width: 62px;
+  padding: 5px 8px;
+}
+
+.water-state.overdue,
+.water-state.due {
+  background: #f4d8d3;
+  color: #8b332b;
+}
+
+.water-state.soon {
+  background: #f7e8bd;
+  color: #73550f;
+}
+
+.water-state.ok {
+  background: var(--mint);
+  color: var(--leaf-dark);
 }
 
 .controls {
@@ -440,8 +548,26 @@ dialog::backdrop {
   }
 
   .summary,
+  .water-stats,
   .two-column {
     grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: start;
+    display: grid;
+  }
+
+  .section-heading > p {
+    text-align: left;
+  }
+
+  .water-board {
+    padding: 14px;
+  }
+
+  .water-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .controls {

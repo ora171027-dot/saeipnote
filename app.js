@@ -8,6 +8,8 @@ const statusLabels = {
   watch: "주의",
 };
 
+const DEFAULT_WATER_INTERVAL_DAYS = 7;
+
 const samplePlants = [
   {
     id: crypto.randomUUID(),
@@ -16,6 +18,7 @@ const samplePlants = [
     location: "창가",
     status: "good",
     wateredAt: today(-3),
+    waterIntervalDays: 7,
     repottedAt: today(-18),
     memo: "새잎 올라오는 중",
     photo: "",
@@ -27,6 +30,7 @@ const samplePlants = [
     location: "책상 옆",
     status: "okay",
     wateredAt: today(-6),
+    waterIntervalDays: 5,
     repottedAt: "",
     memo: "줄기가 길어져서 곧 정리 필요",
     photo: "",
@@ -38,6 +42,7 @@ const samplePlants = [
     location: "회의실 입구",
     status: "watch",
     wateredAt: today(-10),
+    waterIntervalDays: 10,
     repottedAt: today(-43),
     memo: "잎끝 마름 관찰 중",
     photo: "",
@@ -98,6 +103,7 @@ form.addEventListener("submit", (event) => {
     location: document.querySelector("#plantLocation").value.trim(),
     status: document.querySelector("#plantStatus").value,
     wateredAt: document.querySelector("#wateredAt").value,
+    waterIntervalDays: normalizeWaterInterval(document.querySelector("#waterIntervalDays").value),
     repottedAt: document.querySelector("#repottedAt").value,
     memo: document.querySelector("#plantMemo").value.trim(),
     photo: selectedPhoto,
@@ -142,12 +148,12 @@ render();
 
 function loadPlants() {
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return samplePlants;
+  if (!saved) return samplePlants.map(normalizePlant);
 
   try {
-    return JSON.parse(saved);
+    return JSON.parse(saved).map(normalizePlant);
   } catch {
-    return samplePlants;
+    return samplePlants.map(normalizePlant);
   }
 }
 
@@ -184,7 +190,7 @@ function importPlants() {
       const ok = confirm("현재 식물 목록을 백업 파일 내용으로 바꿀까요?");
       if (!ok) return;
 
-      plants = nextPlants;
+      plants = nextPlants.map(normalizePlant);
       savePlants();
       render();
     } catch {
@@ -206,8 +212,9 @@ function render() {
   });
 
   document.querySelector("#totalPlants").textContent = plants.length;
-  document.querySelector("#needsWater").textContent = plants.filter((plant) => daysSince(plant.wateredAt) >= 7).length;
+  document.querySelector("#needsWater").textContent = plants.filter((plant) => getWaterStatus(plant).daysUntilDue <= 0).length;
   document.querySelector("#watchPlants").textContent = plants.filter((plant) => plant.status === "watch").length;
+  renderWaterBoard();
 
   grid.innerHTML = filtered.map(renderPlant).join("");
   emptyState.classList.toggle("visible", filtered.length === 0);
@@ -216,7 +223,9 @@ function render() {
 function renderPlant(plant) {
   const wateredDays = daysSince(plant.wateredAt);
   const repottedDays = daysSince(plant.repottedAt);
+  const waterStatus = getWaterStatus(plant);
   const waterText = plant.wateredAt ? `${wateredDays}일 전` : "기록 없음";
+  const nextWaterText = plant.wateredAt ? formatDueText(waterStatus.daysUntilDue) : "주기 확인";
   const repotText = plant.repottedAt ? `${repottedDays}일 전` : "기록 없음";
   const subtitle = [plant.species, plant.location].filter(Boolean).join(" · ") || "위치 미정";
   const initial = plant.name.slice(0, 1) || "?";
@@ -236,6 +245,8 @@ function renderPlant(plant) {
         </div>
         <div class="plant-dates">
           <div><b>물 준 날</b><span>${waterText}</span></div>
+          <div><b>다음 물</b><span>${nextWaterText}</span></div>
+          <div><b>물 주기</b><span>${plant.waterIntervalDays}일마다</span></div>
           <div><b>분갈이</b><span>${repotText}</span></div>
         </div>
         ${plant.memo ? `<p class="plant-memo">${escapeHtml(plant.memo)}</p>` : ""}
@@ -257,6 +268,7 @@ function openForm(plant = null) {
   document.querySelector("#plantLocation").value = plant?.location || "";
   document.querySelector("#plantStatus").value = plant?.status || "good";
   document.querySelector("#wateredAt").value = plant?.wateredAt || today();
+  document.querySelector("#waterIntervalDays").value = plant?.waterIntervalDays || DEFAULT_WATER_INTERVAL_DAYS;
   document.querySelector("#repottedAt").value = plant?.repottedAt || "";
   document.querySelector("#plantMemo").value = plant?.memo || "";
   photoInput.value = "";
@@ -292,6 +304,89 @@ function updatePhotoPreview() {
   photoPreview.classList.toggle("visible", Boolean(selectedPhoto));
 }
 
+function normalizePlant(plant) {
+  return {
+    ...plant,
+    waterIntervalDays: normalizeWaterInterval(plant.waterIntervalDays),
+  };
+}
+
+function normalizeWaterInterval(value) {
+  const days = Number.parseInt(value, 10);
+  if (!Number.isFinite(days) || days < 1) return DEFAULT_WATER_INTERVAL_DAYS;
+  return Math.min(days, 365);
+}
+
+function renderWaterBoard() {
+  const schedule = plants.map(getWaterStatus).sort((a, b) => {
+    if (a.daysUntilDue !== b.daysUntilDue) return a.daysUntilDue - b.daysUntilDue;
+    return a.plant.name.localeCompare(b.plant.name, "ko");
+  });
+
+  document.querySelector("#overduePlants").textContent = schedule.filter((item) => item.daysUntilDue < 0).length;
+  document.querySelector("#todayPlants").textContent = schedule.filter((item) => item.daysUntilDue === 0).length;
+  document.querySelector("#tomorrowPlants").textContent = schedule.filter((item) => item.daysUntilDue === 1).length;
+  document.querySelector("#soonPlants").textContent = schedule.filter(
+    (item) => item.daysUntilDue >= 0 && item.daysUntilDue <= 3
+  ).length;
+
+  const visibleSchedule = schedule;
+  document.querySelector("#waterScheduleBody").innerHTML = visibleSchedule.map(renderWaterRow).join("");
+  document.querySelector("#waterBoardNote").textContent = "급한 순서로 전체 식물을 보여줘요.";
+}
+
+function renderWaterRow(item) {
+  const { plant, dueDate, daysUntilDue } = item;
+  const stateClass = daysUntilDue < 0 ? "overdue" : daysUntilDue <= 1 ? "due" : daysUntilDue <= 3 ? "soon" : "ok";
+  const lastWatered = plant.wateredAt ? `${daysSince(plant.wateredAt)}일 전` : "기록 없음";
+  const dueDateText = plant.wateredAt ? formatDateLabel(dueDate) : "물 준 날 필요";
+
+  return `
+    <tr>
+      <td><b>${escapeHtml(plant.name)}</b></td>
+      <td>${escapeHtml(plant.location || "-")}</td>
+      <td>${plant.waterIntervalDays}일</td>
+      <td>${lastWatered}</td>
+      <td>${dueDateText}</td>
+      <td><span class="water-state ${stateClass}">${formatDueText(daysUntilDue)}</span></td>
+    </tr>
+  `;
+}
+
+function getWaterStatus(plant) {
+  const interval = normalizeWaterInterval(plant.waterIntervalDays);
+  const dueDate = addDays(plant.wateredAt || today(), interval);
+  return {
+    plant: { ...plant, waterIntervalDays: interval },
+    dueDate,
+    daysUntilDue: plant.wateredAt ? daysBetween(today(), dueDate) : 0,
+  };
+}
+
+function formatDueText(daysUntilDue) {
+  if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)}일 지남`;
+  if (daysUntilDue === 0) return "오늘";
+  if (daysUntilDue === 1) return "내일";
+  return `${daysUntilDue}일 뒤`;
+}
+
+function formatDateLabel(dateString) {
+  const date = new Date(`${dateString}T00:00:00`);
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function addDays(dateString, offset) {
+  const date = new Date(`${dateString}T00:00:00`);
+  date.setDate(date.getDate() + offset);
+  return formatLocalDate(date);
+}
+
+function daysBetween(fromDateString, toDateString) {
+  const fromDate = new Date(`${fromDateString}T00:00:00`);
+  const toDate = new Date(`${toDateString}T00:00:00`);
+  return Math.floor((toDate - fromDate) / 86400000);
+}
+
 function daysSince(dateString) {
   if (!dateString) return Number.POSITIVE_INFINITY;
   const date = new Date(`${dateString}T00:00:00`);
@@ -303,7 +398,14 @@ function daysSince(dateString) {
 function today(offset = 0) {
   const date = new Date();
   date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
+  return formatLocalDate(date);
+}
+
+function formatLocalDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function resizePhoto(file) {
