@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="새잎노트" />
     <title>새잎노트</title>
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <header class="topbar">
@@ -50,39 +50,7 @@
           </div>
           <p id="waterBoardNote">식물별 물 주기를 기준으로 계산해요.</p>
         </div>
-        <div class="water-stats">
-          <article>
-            <span id="overduePlants">0</span>
-            <p>지나침</p>
-          </article>
-          <article>
-            <span id="todayPlants">0</span>
-            <p>오늘</p>
-          </article>
-          <article>
-            <span id="tomorrowPlants">0</span>
-            <p>내일</p>
-          </article>
-          <article>
-            <span id="soonPlants">0</span>
-            <p>3일 안</p>
-          </article>
-        </div>
-        <div class="water-table-wrap">
-          <table class="water-table">
-            <thead>
-              <tr>
-                <th>식물</th>
-                <th>위치</th>
-                <th>주기</th>
-                <th>마지막</th>
-                <th>다음</th>
-                <th>상태</th>
-              </tr>
-            </thead>
-            <tbody id="waterScheduleBody"></tbody>
-          </table>
-        </div>
+        <div class="water-groups" id="waterScheduleBoard"></div>
       </section>
 
       <section class="controls" aria-label="식물 찾기와 필터">
@@ -157,10 +125,18 @@
             <input id="wateredAt" type="date" />
           </label>
           <label>
-            물 주기
+            기준 물 주기
             <input id="waterIntervalDays" type="number" min="1" max="365" step="1" inputmode="numeric" placeholder="예: 7" />
           </label>
         </div>
+
+        <label class="check-row">
+          <input id="autoWaterInterval" type="checkbox" checked />
+          <span>
+            실제 물 준 간격으로 자동 조정
+            <small>최근 5회 기록을 더 중요하게 반영해 계절 변화에 맞춰요.</small>
+          </span>
+        </label>
 
         <div class="two-column">
           <label>
@@ -184,6 +160,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=6"></script>
+    <script src="app-v2.js?v=7"></script>
   </body>
 </html>
